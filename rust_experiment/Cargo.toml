@@ -1,0 +1,9 @@
+[package]
+name = "rust_experiment"
+version = "0.1.0"
+authors = ["Mick van Gelderen <mickvangelderen@gmail.com>"]
+
+[dependencies]
+glutin = "*"
+gl = "*"
+libc = "*"
