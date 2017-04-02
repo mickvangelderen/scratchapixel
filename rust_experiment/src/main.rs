@@ -17,27 +17,9 @@ fn main() {
     }
 
     // Create shaders.
-    let vertex_shader_source = file_to_string("assets/vertex_shader.glsl").unwrap();
-    let fragment_shader_source = file_to_string("assets/fragment_shader.glsl").unwrap();
+    let vertex_shader_id = file_to_shader(gl::VERTEX_SHADER, "assets/vertex_shader.glsl").unwrap();
+    let fragment_shader_id = file_to_shader(gl::FRAGMENT_SHADER, "assets/fragment_shader.glsl").unwrap();
     unsafe {
-        let vertex_shader_id: u32 = gl::CreateShader(gl::VERTEX_SHADER);
-        gl::ShaderSource(
-            vertex_shader_id,
-            1,
-            [vertex_shader_source.as_ptr() as *const i8].as_ptr(),
-            [vertex_shader_source.len() as i32].as_ptr()
-        );
-        gl::CompileShader(vertex_shader_id);
-
-        let fragment_shader_id: u32 = gl::CreateShader(gl::FRAGMENT_SHADER);
-        gl::ShaderSource(
-            fragment_shader_id,
-            1,
-            [fragment_shader_source.as_ptr() as *const i8].as_ptr(),
-            [fragment_shader_source.len() as i32].as_ptr()
-        );
-        gl::CompileShader(fragment_shader_id);
-
         let program_id: u32 = gl::CreateProgram();
         gl::AttachShader(program_id, vertex_shader_id);
         gl::AttachShader(program_id, fragment_shader_id);
@@ -126,6 +108,23 @@ fn main() {
         window.swap_buffers().unwrap();
         std::thread::sleep(std::time::Duration::from_millis(16));
     }
+}
+
+fn file_to_shader<P: AsRef<std::path::Path>>(shader_type: u32, path: P) -> Result<u32, std::io::Error> {
+    file_to_string(path)
+        .map(|source| {
+            unsafe {
+                let id: u32 = gl::CreateShader(shader_type);
+                gl::ShaderSource(
+                    id,
+                    1,
+                    [source.as_ptr() as *const i8].as_ptr(),
+                    [source.len() as i32].as_ptr()
+                );
+                gl::CompileShader(id);
+                id
+            }
+        })
 }
 
 fn file_to_string<P: AsRef<std::path::Path>>(path: P) -> Result<String, std::io::Error> {
